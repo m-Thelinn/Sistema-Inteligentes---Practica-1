@@ -1,5 +1,8 @@
 #Miguel Rodríguez Sánchez DNI: 48717878Z
 
+from tablero import Tablero
+
+
 PROFUNDIDADMAX = 2 #constante que marca la profundidad maxima del arbol de busqueda
 
 pioridadesTablero = [1,2,3,4,4,3,2,1]
@@ -155,22 +158,18 @@ def minimo(nodoPadre):
     minValor = 500
 
     for i in range(8):
-        nodoHijo = Nodo(nodoPadre.getTablero(), nodoPadre, nodoPadre.getProfundidad() + 1)
+        tableroHijo = Tablero(nodoPadre.getTablero())
+        colocarNuevaFicha(tableroHijo, i, 1)
+        nodoHijo = Nodo(tableroHijo, nodoPadre, nodoPadre.getProfundidad() + 1)
         if(nodoHoja(nodoHijo) == 1):
-            tableroHijo = nodoHijo.getTablero()
-            colocarNuevaFicha(tableroHijo, i, 1)
             valor = evaluacion(nodoHijo)
-            borrarFicha(tableroHijo, i)
             if(minValor > valor):
                 minValor = valor
         else:
-            tableroHijo = nodoHijo.getTablero()
-            colocarNuevaFicha(tableroHijo, i, 1)
             valor = maximo(nodoHijo)
             if(minValor > valor):
                 minValor = valor
-            borrarFicha(tableroHijo, i)
-
+                
     return minValor
 
 #devuelve el valor maximo de una serie de hijos. Coloca ficha de maquina
@@ -178,21 +177,17 @@ def maximo(nodoPadre):
     maxValor = 0
 
     for i in range(8):
-        nodoHijo = Nodo(nodoPadre.getTablero(), nodoPadre, nodoPadre.getProfundidad() + 1)
+        tableroHijo = Tablero(nodoPadre.getTablero())
+        colocarNuevaFicha(tableroHijo, i, 2)
+        nodoHijo = Nodo(tableroHijo, nodoPadre, nodoPadre.getProfundidad() + 1)
         if(nodoHoja(nodoHijo) == 1):
-            tableroHijo = nodoHijo.getTablero()
-            colocarNuevaFicha(tableroHijo, i, 2)
             valor = evaluacion(nodoHijo)
-            borrarFicha(tableroHijo, i)
             if(maxValor < valor):
                 maxValor = valor
         else:
-            tableroHijo = nodoHijo.getTablero()
-            colocarNuevaFicha(tableroHijo, i, 2)
             valor = minimo(nodoHijo)
             if(maxValor < valor):
                 maxValor = valor
-            borrarFicha(tableroHijo, i)
 
     return maxValor   
 
