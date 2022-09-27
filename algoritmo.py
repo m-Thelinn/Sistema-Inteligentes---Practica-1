@@ -3,7 +3,7 @@
 from tablero import Tablero
 
 
-PROFUNDIDADMAX = 2 #constante que marca la profundidad maxima del arbol de busqueda
+PROFUNDIDADMAX = 1 #constante que marca la profundidad maxima del arbol de busqueda
 
 pioridadesTablero = [1,2,3,4,4,3,2,1]
 
@@ -146,21 +146,20 @@ def colocarNuevaFicha(tablero, columna, jugador):
     fila = busca(tablero, columna)
     tablero.setCelda(fila, columna, jugador)
 
-#borra la ficha creada para evaluar
-def borrarFicha(tablero, columna):
-    filaLibre = busca(tablero, columna)
-    filaABorrar = filaLibre + 1
-    tablero.setCelda(filaABorrar, columna, 0)
+#crear un nuevo estado con la casilla del tablero llena para posteriormente evaluarla.
+def crearEstado(nodoPadre, i, jugador):
+    tableroHijo = Tablero(nodoPadre.getTablero())
+    colocarNuevaFicha(tableroHijo, i, jugador)
+    nodoHijo = Nodo(tableroHijo, nodoPadre, nodoPadre.getProfundidad() + 1)
 
+    return nodoHijo
 
 #devuelve el valor minimo de una serie de hijos. Coloca ficha de jugador
 def minimo(nodoPadre):
     minValor = 500
 
     for i in range(8):
-        tableroHijo = Tablero(nodoPadre.getTablero())
-        colocarNuevaFicha(tableroHijo, i, 1)
-        nodoHijo = Nodo(tableroHijo, nodoPadre, nodoPadre.getProfundidad() + 1)
+        nodoHijo = crearEstado(nodoPadre, i, 1)
         if(nodoHoja(nodoHijo) == 1):
             valor = evaluacion(nodoHijo)
             if(minValor > valor):
@@ -169,7 +168,7 @@ def minimo(nodoPadre):
             valor = maximo(nodoHijo)
             if(minValor > valor):
                 minValor = valor
-                
+
     return minValor
 
 #devuelve el valor maximo de una serie de hijos. Coloca ficha de maquina
@@ -177,9 +176,7 @@ def maximo(nodoPadre):
     maxValor = 0
 
     for i in range(8):
-        tableroHijo = Tablero(nodoPadre.getTablero())
-        colocarNuevaFicha(tableroHijo, i, 2)
-        nodoHijo = Nodo(tableroHijo, nodoPadre, nodoPadre.getProfundidad() + 1)
+        nodoHijo = crearEstado(nodoPadre, i, 2)
         if(nodoHoja(nodoHijo) == 1):
             valor = evaluacion(nodoHijo)
             if(maxValor < valor):
