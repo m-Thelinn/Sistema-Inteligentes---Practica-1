@@ -1,11 +1,7 @@
-#Miguel Rodríguez Sánchez DNI: 48717878Z
-
 from tablero import Tablero
 
-
 PROFUNDIDADMAX = 1 #constante que marca la profundidad maxima del arbol de busqueda
-
-pioridadesTablero = [1,2,3,4,4,3,2,1]
+pioridadesTablero = [1,2,3,4,4,3,2,1] #las columnas tienen una serie de pioridades
 
 class Nodo:
     def __init__(self, tablero, padre, profundidad):
@@ -110,36 +106,16 @@ def columnaCompleta(tablero, col):
     else:
         return 0 #no completa
 
-#devuelve la columna de mas valor (las centrales tienen mas valor)
-def pioridadCentro(tablero):
-
-    pioMax = max(pioridadesTablero)
-    columna = pioridadesTablero.index(pioMax)
-
-    if columnaCompleta(tablero, columna) == 1: #elimina la columna completa
-        pioridadesTablero[columna] = -1
-    
-    pioMax = max(pioridadesTablero)
-
-    return pioMax
-
-
-#evalua el estado del tablero y devuelve un numero para el estado
-def evaluacion(nodo):
-    valorCentro = pioridadCentro(nodo.getTablero()) #verifica la pioridad de la columna
-    #valorDosH = dosEnLineaH(tablero) #verifica que existen 2 en horizontal
-    #valorTresH = tresEnLineaH(tablero) #varifica que existen 3 en horizontal
-    
-    valorCasilla = valorCentro #sumamos todas las funciones 
-    
-    return valorCasilla
-
 #devuelve 1 en caso de ser nodo hoja. Devuelve 0 si no lo es
 def nodoHoja(nodo):
     if nodo.getProfundidad() >= PROFUNDIDADMAX:
         return 1
     else:
         return 0
+
+#evalua el estado del tablero y devuelve un numero para el estado
+def evaluacion(nodo):
+    return 0
 
 #coloca una nueva ficha en la columna marcada. ERROR, LO HACE EN EL TABLERO PADRE E HIJO
 def colocarNuevaFicha(tablero, columna, jugador):
@@ -162,6 +138,10 @@ def minimo(nodoPadre):
         nodoHijo = crearEstado(nodoPadre, i, 1)
         if(nodoHoja(nodoHijo) == 1):
             valor = evaluacion(nodoHijo)
+
+            if(columnaCompleta(nodoHijo.getTablero(), i) == 0):
+                valor += pioridadesTablero[i]
+            
             if(minValor > valor):
                 minValor = valor
         else:
@@ -179,6 +159,10 @@ def maximo(nodoPadre):
         nodoHijo = crearEstado(nodoPadre, i, 2)
         if(nodoHoja(nodoHijo) == 1):
             valor = evaluacion(nodoHijo)
+
+            if(columnaCompleta(nodoHijo.getTablero(), i) == 0):
+                valor += pioridadesTablero[i]
+            
             if(maxValor < valor):
                 maxValor = valor
         else:
@@ -188,7 +172,7 @@ def maximo(nodoPadre):
 
     return maxValor   
 
-#inicio del algoritmo. Devuelve la posicion mas optima. ERROR, DEVUELVE LA PRIMERA ITERACION
+#inicio del algoritmo. Devuelve la posicion mas optima. ERROR, EL BUCLE IGUAL SOBRA
 def minimax(nodo):
     maxValor = 0
     columnaMax = -1
