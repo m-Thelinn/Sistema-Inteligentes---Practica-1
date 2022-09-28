@@ -1,6 +1,7 @@
+import math
 from tablero import Tablero
 
-PROFUNDIDADMAX = 1 #constante que marca la profundidad maxima del arbol de busqueda
+PROFUNDIDADMAX = 3 #constante que marca la profundidad maxima del arbol de busqueda
 pioridadesTablero = [1,2,3,4,4,3,2,1] #las columnas tienen una serie de pioridades
 
 class Nodo:
@@ -132,58 +133,57 @@ def crearEstado(nodoPadre, i, jugador):
 
 #devuelve el valor minimo de una serie de hijos. Coloca ficha de jugador
 def minimo(nodoPadre):
-    minValor = 500
+    minValor = math.inf
+    columna = -1
 
     for i in range(8):
-        nodoHijo = crearEstado(nodoPadre, i, 1)
-        if(nodoHoja(nodoHijo) == 1):
-            valor = evaluacion(nodoHijo)
-
-            if(columnaCompleta(nodoHijo.getTablero(), i) == 0):
-                valor += pioridadesTablero[i]
-            
-            if(minValor > valor):
-                minValor = valor
-        else:
-            valor = maximo(nodoHijo)
-            if(minValor > valor):
-                minValor = valor
-
-    return minValor
+        if(columnaCompleta(nodoPadre.getTablero(), i) == 0):
+            nodoHijo = crearEstado(nodoPadre, i, 1)
+            if(nodoHoja(nodoHijo) == 1):
+                valor = evaluacion(nodoHijo) + pioridadesTablero[i]
+                if(minValor > valor):
+                    minValor = valor
+                    columna = i
+            else:
+                valor, col = maximo(nodoHijo)
+                if(minValor > valor):
+                    minValor = valor
+                    columna = col
+    
+    return minValor, columna
 
 #devuelve el valor maximo de una serie de hijos. Coloca ficha de maquina
 def maximo(nodoPadre):
-    maxValor = 0
+    maxValor = -math.inf
+    columna = -1
 
     for i in range(8):
-        nodoHijo = crearEstado(nodoPadre, i, 2)
-        if(nodoHoja(nodoHijo) == 1):
-            valor = evaluacion(nodoHijo)
+        if(columnaCompleta(nodoPadre.getTablero(), i) == 0):
+            nodoHijo = crearEstado(nodoPadre, i, 2)
+            if(nodoHoja(nodoHijo) == 1):
+                valor = evaluacion(nodoHijo) + pioridadesTablero[i]
+                if(maxValor < valor):
+                    maxValor = valor
+                    columna = i
+            else:
+                valor, col = minimo(nodoHijo)
+                if(maxValor < valor):
+                    maxValor = valor
+                    columna = col
 
-            if(columnaCompleta(nodoHijo.getTablero(), i) == 0):
-                valor += pioridadesTablero[i]
-            
-            if(maxValor < valor):
-                maxValor = valor
-        else:
-            valor = minimo(nodoHijo)
-            if(maxValor < valor):
-                maxValor = valor
+    return maxValor, columna
 
-    return maxValor   
-
-#inicio del algoritmo. Devuelve la posicion mas optima. ERROR, EL BUCLE IGUAL SOBRA
+#inicio del algoritmo. Devuelve la columna donde colocar la ficha
 def minimax(nodo):
     maxValor = 0
-    columnaMax = -1
+    columna = -1
 
-    for i in range(8):
-        valor = maximo(nodo)
-        if(maxValor < valor):
-            maxValor = valor
-            columnaMax = i
+    valor, col = maximo(nodo)
+    if(maxValor < valor):
+        maxValor = valor
+        columna = col
     
-    return columnaMax
+    return columna
 
 # busca que fila es la primera vacia de una columna concreta
 def busca(tablero, col):  
@@ -198,12 +198,9 @@ def busca(tablero, col):
 
 # llama al algoritmo que decide la jugada
 def juega(tablero, posicion):
-    ####################################################
-    ## sustituir este código por la llamada al algoritmo
-   
     encontrado = False
     nodoRaiz = Nodo(tablero, None, 0)
-    c = minimax(nodoRaiz) #antes 0
+    c = minimax(nodoRaiz)
 
     while not encontrado and c < tablero.getAncho():
         f = busca(tablero, c)
@@ -214,18 +211,4 @@ def juega(tablero, posicion):
     if f != -1:
         posicion[0] = f
         posicion[1] = c
-    
-        #enc=False
-    #c=0
-    #while not enc and c<tablero.getAncho():
-    #    f=busca(tablero, c)
-    #    if f!=-1:
-    #        enc=True
-    #    else:
-    #        c=c+1
-    #if f!=-1:
-    #    posicion[0]=f
-    #    posicion[1]=c
-    
-    ####################################################  
                 
