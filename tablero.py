@@ -43,36 +43,36 @@ class Tablero:
     #
     ## detecta si hay cuatro fichas en línea y devuelve el ganador
     def cuatroEnRaya(self):
-        return 0
-        #i=0        
-        #fin=False
-        #ganador=0
-        #
-        #while not fin and i<self.getAlto():
-        #    j=0
-        #    while not fin and j<self.getAncho():
-        #        casilla=self.getCelda(i,j)
-        #        if casilla!=0:
-        #            #búsqueda en horizontal
-        #            if (j+3) <self.getAncho():
-        #                if self.getCelda(i, j+1)==casilla and self.getCelda(i, j+2)==casilla and self.getCelda(i, j+3)==casilla:
-        #                    ganador=casilla
-        #                    fin=True
-        #            #búsqueda en vertical
-        #            if (i+3) <self.getAlto():
-        #                if self.getCelda(i+1, j)==casilla and self.getCelda(i+2, j)==casilla and self.getCelda(i+3, j)==casilla:
-        #                    ganador=casilla
-        #                    fin=True
-        #            #búsqueda en diagonal
-        #            if (i+3) <self.getAlto():
-        #                if (j-3) >= 0:
-        #                    if self.getCelda(i+1, j-1)==casilla and self.getCelda(i+2, j-2)==casilla and self.getCelda(i+3, j-3)==casilla:
-        #                        ganador=casilla
-        #                        fin=True
-        #                if (j+3) <self.getAncho():
-        #                    if self.getCelda(i+1, j+1)==casilla and self.getCelda(i+2, j+2)==casilla and self.getCelda(i+3, j+3)==casilla:
-        #                        ganador=casilla
-        #                        fin=True
-        #        j=j+1
-        #    i=i+1
-        #return ganador
+
+        i=0        
+        fin=False
+        ganador=0
+        
+        while not fin and i<self.getAlto():
+            j=0
+            while not fin and j<self.getAncho():
+                casilla=self.getCelda(i,j)
+                if casilla!=0:
+                    #búsqueda en horizontal
+                    if (j+3) <self.getAncho():
+                        if self.getCelda(i, j+1)==casilla and self.getCelda(i, j+2)==casilla and self.getCelda(i, j+3)==casilla:
+                            ganador=casilla
+                            fin=True
+                    #búsqueda en vertical
+                    if (i+3) <self.getAlto():
+                        if self.getCelda(i+1, j)==casilla and self.getCelda(i+2, j)==casilla and self.getCelda(i+3, j)==casilla:
+                            ganador=casilla
+                            fin=True
+                    #búsqueda en diagonal
+                    if (i+3) <self.getAlto():
+                        if (j-3) >= 0:
+                            if self.getCelda(i+1, j-1)==casilla and self.getCelda(i+2, j-2)==casilla and self.getCelda(i+3, j-3)==casilla:
+                                ganador=casilla
+                                fin=True
+                        if (j+3) <self.getAncho():
+                            if self.getCelda(i+1, j+1)==casilla and self.getCelda(i+2, j+2)==casilla and self.getCelda(i+3, j+3)==casilla:
+                                ganador=casilla
+                                fin=True
+                j=j+1
+            i=i+1
+        return ganador

@@ -1,7 +1,8 @@
 from tablero import Tablero
 import time
+import math
 
-PROFUNDIDADMAX = 1 #constante que marca la profundidad maxima del arbol de busqueda
+PROFUNDIDADMAX = 4 #constante que marca la profundidad maxima del arbol de busqueda
 pioridadesCentrales = {0:1,1:1,2:2,3:2,4:2,5:2,6:1,7:1} #las columnas tienen una serie de pioridades
 
 class Nodo:
@@ -28,140 +29,163 @@ class Nodo:
     def setProfundidad(self, profundidad):
         self.profundidad = profundidad
 
-def evaluarCuatro(tablero, casilla, i, j):
+def puntuarTablero(tablero):
     valor = 0
-
-    #VERTICAL
-    if (i+3) <tablero.getAlto():
-        if tablero.getCelda(i+1, j)==casilla and tablero.getCelda(i+2, j)==casilla and tablero.getCelda(i+3, j)==casilla:
-            valor += 100
-
-    #HORIZONTAL
-    if (j+3) <tablero.getAncho():
-        if tablero.getCelda(i, j+1)==casilla and tablero.getCelda(i, j+2)==casilla and tablero.getCelda(i, j+3)==casilla:
-            valor += 100
-            
-    #DIAGONAL
-    if (i+3) <tablero.getAlto():
-        if (j-3) >= 0:
-            if tablero.getCelda(i+1, j-1)==casilla and tablero.getCelda(i+2, j-2)==casilla and tablero.getCelda(i+3, j-3)==casilla:
-                valor += 100
-        if (j+3) <tablero.getAncho():
-            if tablero.getCelda(i+1, j+1)==casilla and tablero.getCelda(i+2, j+2)==casilla and tablero.getCelda(i+3, j+3)==casilla:
-                valor += 100
-     
-    return valor
-
-def bloquearCuatro(tablero, casilla, i, j):
-    valor = 0
-
-    #VERTICAL
-    if (i+3) <tablero.getAlto():
-        if tablero.getCelda(i+1, j)!=casilla and tablero.getCelda(i+2, j)!=casilla and tablero.getCelda(i+3, j)!=casilla:
-            valor += 150
-
-    #HORIZONTAL
-    if (j+3) <tablero.getAncho():
-        if tablero.getCelda(i, j+1)!=casilla and tablero.getCelda(i, j+2)!=casilla and tablero.getCelda(i, j+3)!=casilla:
-            valor += 150
-            
-    #DIAGONAL
-    if (i+3) <tablero.getAlto():
-        if (j-3) >= 0:
-            if tablero.getCelda(i+1, j-1)!=casilla and tablero.getCelda(i+2, j-2)!=casilla and tablero.getCelda(i+3, j-3)!=casilla:
-                valor += 150
-        if (j+3) <tablero.getAncho():
-            if tablero.getCelda(i+1, j+1)!=casilla and tablero.getCelda(i+2, j+2)!=casilla and tablero.getCelda(i+3, j+3)!=casilla:
-                valor += 50
-     
-    return valor
-
-def evaluarTres(tablero, casilla, i, j):
-    valor = 0
-
-    #VERTICAL
-    if (i+2) <tablero.getAlto():
-        if tablero.getCelda(i+1, j)==casilla and tablero.getCelda(i+2, j)==casilla:
-            valor += 20
-
-    #HORIZONTAL
-    if (j+2) <tablero.getAncho():
-        if tablero.getCelda(i, j+1)==casilla and tablero.getCelda(i, j+2)==casilla:
-            valor += 20
-            
-    #DIAGONAL
-    if (i+2) <tablero.getAlto():
-        if (j-2) >= 0:
-            if tablero.getCelda(i+1, j-1)==casilla and tablero.getCelda(i+2, j-2)==casilla:
-                valor += 20
-        if (j+2) <tablero.getAncho():
-            if tablero.getCelda(i+1, j+1)==casilla and tablero.getCelda(i+2, j+2)==casilla:
-                valor += 20
-     
-    return valor
-
-def evaluarDos(tablero, casilla, i, j):
-    valor = 0
-
-    #VERTICAL
-    if (i+1) <tablero.getAlto():
-        if tablero.getCelda(i+1, j)==casilla:
-            valor += 7
-
-    #HORIZONTAL
-    if (j+1) <tablero.getAncho():
-        if tablero.getCelda(i, j+1)==casilla:
-            valor += 7
-            
-    #DIAGONAL
-    if (i+1) <tablero.getAlto():
-        if (j-1) >= 0:
-            if tablero.getCelda(i+1, j-1)==casilla:
-                valor += 7
-        if (j+1) <tablero.getAncho():
-            if tablero.getCelda(i+1, j+1)==casilla:
-                valor += 7
-     
-    return valor
-
-def evaluacion(nodo):
-    tablero = nodo.getTablero()
-     
-    valor = 0
+    lista = []
 
     for i in range(tablero.getAlto()):
         for j in range(tablero.getAncho()):
-            casilla=tablero.getCelda(i,j)
-            if casilla!=0:
-                if casilla == 2:
-                    valor += evaluarCuatro(tablero, casilla, i, j)
-                    valor += evaluarTres(tablero, casilla, i, j)
-                    valor += evaluarDos(tablero, casilla, i, j)
-                    valor += bloquearCuatro(tablero, casilla, i, j)
+            #VERTICAL
+            if (i+3) <tablero.getAlto():
+                lista = [tablero.getCelda(i, j), tablero.getCelda(i+1, j), tablero.getCelda(i+2, j), tablero.getCelda(i+3, j)]
+                contIA = lista.count(2)
+                contJ = lista.count(1)
+                contVacio = lista.count(0)
+                if(contIA > contJ):
+                    if(contIA == 4):                            
+                        valor += 100
+                    elif(contIA == 3 and contVacio == 1):
+                        valor += 20
+                    elif(contIA == 3 and contJ == 1):
+                        valor += 5                  
+                elif contJ > contIA:
+                    if(contJ == 4):
+                        valor -= 100
+                    elif(contJ == 3 and contVacio == 1):
+                        valor -= 20                        
+                    elif(contJ == 3 and contIA == 1):
+                        valor -= 5
+                                                
+            #HORIZONTAL
+            if (j+3) <tablero.getAncho():
+                lista = [tablero.getCelda(i, j), tablero.getCelda(i, j+1), tablero.getCelda(i, j+2), tablero.getCelda(i, j+3)]                
+                contIA = lista.count(2)
+                contJ = lista.count(1)
+                contVacio = lista.count(0)
+                if(contIA > contJ):
+                    if(contIA == 4):                            
+                        valor += 100
+                    elif(contIA == 3 and contVacio == 1):
+                        valor += 20
+                    elif(contIA == 3 and contJ == 1):
+                        valor += 5                
                 else:
-                    valor -= evaluarCuatro(tablero, casilla, i, j)
-                    valor -= evaluarTres(tablero, casilla, i, j)
-                    valor -= evaluarDos(tablero, casilla, i, j)
-                    valor -= bloquearCuatro(tablero, casilla, i, j)
+                    if(contJ == 4):
+                        valor -= 100
+                    elif(contJ == 3 and contVacio == 1):
+                        valor -= 20                        
+                    elif(contJ == 3 and contIA == 1):
+                        valor -= 5        
+            #DIAGONAL
+            if (i+3) <tablero.getAlto():
+                if (j-3) >= 0:
+                    lista = [tablero.getCelda(i, j), tablero.getCelda(i+1, j-1), tablero.getCelda(i+2, j-2), tablero.getCelda(i+3, j-3)]
+                    contIA = lista.count(2)
+                    contJ = lista.count(1)
+                    contVacio = lista.count(0)
+                    if(contIA > contJ):
+                        if(contIA == 4):                            
+                            valor += 100
+                        elif(contIA == 3 and contVacio == 1):
+                            valor += 30
+                        elif(contIA == 3 and contJ == 1):
+                            valor += 5
+                    else:
+                        if(contJ == 4):
+                            valor -= 100
+                        elif(contJ == 3 and contVacio == 1):
+                            valor -= 30                        
+                        elif(contJ == 3 and contIA == 1):
+                            valor -= 5
 
-    print(tablero)
-                
+                if (j+3) <tablero.getAncho():
+                    lista = [tablero.getCelda(i, j), tablero.getCelda(i+1, j+1), tablero.getCelda(i+2, j+2), tablero.getCelda(i+3, j+3)]
+                    contIA = lista.count(2)
+                    contJ = lista.count(1)
+                    contVacio = lista.count(0)
+                    if(contIA > contJ):
+                        if(contIA == 4):                            
+                            valor += 100
+                        elif(contIA == 3 and contVacio == 1):
+                            valor += 30
+                        elif(contIA == 3 and contJ == 1):
+                            valor += 5
+                    else:
+                        if(contJ == 4):
+                            valor -= 100
+                        elif(contJ == 3 and contVacio == 1):
+                            valor -= 30                        
+                        elif(contJ == 3 and contIA == 1):
+                            valor -= 5
     return valor
+
+#def puntuarTablero(tablero, casilla):
+#    valor = 0
+#
+#    for i in range(tablero.getAlto()):
+#        for j in range(tablero.getAncho()):
+#            #VERTICAL
+#            if (i+3) <tablero.getAlto():
+#                if tablero.getCelda(i, j)==casilla and tablero.getCelda(i+1, j)==casilla and tablero.getCelda(i+2, j)==casilla and tablero.getCelda(i+3, j)==casilla:
+#                    valor += 100
+#                if tablero.getCelda(i, j)==casilla and tablero.getCelda(i+1, j)==casilla and tablero.getCelda(i+2, j)==casilla:
+#                    valor += 15
+#                if tablero.getCelda(i, j)==casilla and tablero.getCelda(i+1, j)==casilla:
+#                    valor += 5
+#            #HORIZONTAL
+#            if (j+3) <tablero.getAncho():
+#                if tablero.getCelda(i, j)==casilla and tablero.getCelda(i, j+1)==casilla and tablero.getCelda(i, j+2)==casilla and tablero.getCelda(i, j+3)==casilla:
+#                    valor += 100
+#                if tablero.getCelda(i, j)==casilla and tablero.getCelda(i, j+1)==casilla and tablero.getCelda(i, j+2)==casilla:
+#                    valor += 15
+#                if tablero.getCelda(i, j)==casilla and tablero.getCelda(i, j+1)==casilla:
+#                    valor += 5
+#                    
+#            #DIAGONAL
+#            if (i+3) <tablero.getAlto():
+#                if (j-3) >= 0:
+#                    if tablero.getCelda(i, j) and tablero.getCelda(i+1, j-1)==casilla and tablero.getCelda(i+2, j-2)==casilla and tablero.getCelda(i+3, j-3)==casilla:
+#                        valor += 100
+#                    if tablero.getCelda(i, j) and tablero.getCelda(i+1, j-1)==casilla and tablero.getCelda(i+2, j-2)==casilla:
+#                        valor += 15
+#                    if tablero.getCelda(i, j) and tablero.getCelda(i+1, j-1)==casilla:
+#                        valor += 5
+#                if (j+3) <tablero.getAncho():
+#                    if tablero.getCelda(i, j) and tablero.getCelda(i+1, j+1)==casilla and tablero.getCelda(i+2, j+2)==casilla and tablero.getCelda(i+3, j+3)==casilla:
+#                        valor += 100
+#                    if tablero.getCelda(i, j) and tablero.getCelda(i+1, j+1)==casilla and tablero.getCelda(i+2, j+2)==casilla:
+#                        valor += 15
+#                    if tablero.getCelda(i, j) and tablero.getCelda(i+1, j+1)==casilla:
+#                        valor += 5
+#            
+#    return valor
+
+def evaluacion(nodo):
+    tablero = nodo.getTablero()
+    print(tablero)
+
+    if tablero.cuatroEnRaya() == 2:
+        return math.inf
+    elif tablero.cuatroEnRaya() == 1:
+        return -math.inf
+    else:
+        return puntuarTablero(tablero)
+                
 #verifica que una columna no esta completa
 def columnaCompleta(tablero, col):
     if tablero.getCelda(0, col) != 0:
-        return 1 #completa
+        return True #completa
     else:
-        return 0 #no completa
+        return False #no completa
 
 #devuelve 1 en caso de ser nodo hoja. Devuelve 0 si no lo es
 def nodoHoja(nodo):
     if nodo.getProfundidad() >= PROFUNDIDADMAX:
-        return 1
+        return True
     else:
-        return 0
+        return False
     
-#coloca una nueva ficha en la columna marcada. ERROR, LO HACE EN EL TABLERO PADRE E HIJO
+#coloca una nueva ficha en la columna marcada.
 def colocarNuevaFicha(tablero, columna, jugador):
     fila = busca(tablero, columna)
     tablero.setCelda(fila, columna, jugador)
@@ -174,60 +198,85 @@ def crearEstado(nodoPadre, i, jugador):
 
     return nodoHijo
 
-#Algoritmo minimax. Genera el arbol y devuelve maximos y minimos
-def minimax(nodo, col):
-    maxValor = -1000000
-    minValor = 1000000
-    columna = -1
+#devuelve el valor minimo de una serie de hijos. Coloca ficha de jugador
+def minimo(nodoPadre, alpha, beta):
+    minValor = math.inf
+    poda = False
 
-    if(nodoHoja(nodo) == 1):
-        if(columnaCompleta(nodo.getTablero(), col) == 0):
-            valor = evaluacion(nodo)
-            print("Valor HOJA:", valor, col)
-            return valor, col
+    if(nodoHoja(nodoPadre) == True):
+        return evaluacion(nodoPadre)
     else:
         for i in range(8):
-            if(columnaCompleta(nodo.getTablero(), i) == 0):
-                #MAXIMO
-                if(nodo.getProfundidad()%2 == 0):
-                    nodoHijo = crearEstado(nodo, i, 2)
-                    valor, c = minimax(nodoHijo, i)
-                    if(maxValor < valor):
-                        maxValor = valor
-                        columna = c
-                #MINIMO
-                else:
-                    nodoHijo = crearEstado(nodo, i, 1)
-                    valor, c = minimax(nodoHijo, i)
-                    if(minValor > valor):
-                        minValor = valor
-                        columna = c
-        
-        if(nodo.getProfundidad()%2 == 0):
-            print("PROFUNDIDAD", nodoHijo.getProfundidad(),":", maxValor, columna)
-            return maxValor, columna
-        else:
-            print("PROFUNDIDAD", nodoHijo.getProfundidad(),":", minValor, columna)
-            return minValor, columna
+            if poda == True:
+                print('PODA')
+                break
+            if(columnaCompleta(nodoPadre.getTablero(), i) == False):
+                nodoHijo = crearEstado(nodoPadre, i, 1)
+                valor = maximo(nodoHijo, alpha, beta)
+                if minValor > valor:
+                    minValor = valor
+                if valor < beta:
+                    beta = valor
+                if beta <= alpha:
+                    poda = True
+
+    print("Valor MIN profundidad", nodoPadre.getProfundidad() + 1,  ":", valor)
+    return minValor
+
+#devuelve el valor maximo de una serie de hijos. Coloca ficha de maquina
+def maximo(nodoPadre, alpha, beta):
+    maxValor = -math.inf
+    poda = False
+
+    if(nodoHoja(nodoPadre) == True):
+        return evaluacion(nodoPadre)
+    else:
+        for i in range(8):
+            if poda == True:
+                print('PODA')
+                break
+            if(columnaCompleta(nodoPadre.getTablero(), i) == False):
+                nodoHijo = crearEstado(nodoPadre, i, 2)
+                valor = minimo(nodoHijo, alpha, beta)
+                if maxValor < valor:
+                    maxValor = valor
+                if valor > alpha:
+                    alpha = valor
+                if beta <= alpha:
+                    poda = True
+                    
+    print("Valor MAX profundidad", nodoPadre.getProfundidad() + 1,  ":", valor)
+    return maxValor
 
 #inicio del algoritmo. Devuelve la columna donde colocar la ficha
-def inicioAlgoritmo(nodoRaiz):
-    columna = -1
+def minimax(nodoRaiz, alpha, beta):
     valor = 0
-    maxValor = -100000
+    maxValor = -math.inf
+    columna = -1
+    poda = False
 
-    if(nodoRaiz.getProfundidad() < PROFUNDIDADMAX):
-        for i in range(8): #generamos el primer nivel de profundidad
-            valor, col = minimax(nodoRaiz, i)
-            if(maxValor < valor):
+    if(PROFUNDIDADMAX == 0):
+        print("ERROR: NO SE ADMITE PROFUNDIDAD 0")
+        quit()
+ 
+    for i in range(8):
+        if poda == True:
+            print('PODA')
+            break
+        else:
+            nodoHijo = crearEstado(nodoRaiz, i, 2)
+            valor = minimo(nodoHijo, alpha, beta)
+            if maxValor < valor:
                 maxValor = valor
-                columna = col
+                columna = i
+            if valor > alpha:
+                alpha = valor
+            if beta <= alpha:
+                poda = True
 
-    
-    print("VALOR RAIZ: ", valor, columna)
-    
+    print("Valor final/columna: ", valor, ",", columna)
     return columna
-
+    
 # busca que fila es la primera vacia de una columna concreta
 def busca(tablero, col):  
     if tablero.getCelda(0,col) != 0:
@@ -243,10 +292,9 @@ def busca(tablero, col):
 def juega(tablero, posicion):
     encontrado = False
     nodoRaiz = Nodo(tablero, None, 0)
-    #nodoRaiz.getTablero().setCelda(5, 0, 1)
-    #nodoRaiz.getTablero().setCelda(4, 0, 1)
+
     inicio = time.time()
-    c = inicioAlgoritmo(nodoRaiz)
+    c = minimax(nodoRaiz, -math.inf, math.inf)
     final = time.time()
     print("TIEMPO:", final - inicio)
 
@@ -256,6 +304,7 @@ def juega(tablero, posicion):
             encontrado = True
         else:
             c = c + 1
+    
     if f != -1:
         posicion[0] = f
         posicion[1] = c
